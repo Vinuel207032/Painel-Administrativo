@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
@@ -17,7 +18,7 @@ export const Input: React.FC<InputProps> = ({ label, icon, className = '', type 
 
   return (
     <div className="w-full mb-4">
-      <label className="block text-sm font-medium text-gray-700 mb-1">
+      <label className="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-1">
         {label}
       </label>
       <div className="relative">
@@ -31,7 +32,7 @@ export const Input: React.FC<InputProps> = ({ label, icon, className = '', type 
         <input
           type={inputType}
           className={`
-            w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg 
+            w-full bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white text-sm rounded-lg 
             focus:ring-yellow-500 focus:border-yellow-500 block 
             ${icon ? 'pl-10' : 'pl-3'} 
             ${isPasswordType ? 'pr-10' : 'p-2.5'}

@@ -57,6 +57,15 @@ export default function App() {
         throw new Error("Usuário não encontrado ou e-mail inválido.");
       }
 
+      // REGRA RÍGIDA DE STATUS: Apenas 'ATIVO' pode entrar.
+      // Bloqueia 'SUSPENSO', 'SOLICITOU CANCELAMENTO', 'CANCELADO' e qualquer outro.
+      if (user.status_conta !== 'ATIVO') {
+        const statusMsg = user.status_conta === 'SUSPENSO' ? "suspensa" : 
+                         user.status_conta === 'CANCELADO' ? "cancelada" : 
+                         "bloqueada por solicitação de cancelamento";
+        throw new Error(`Sua conta está ${statusMsg}. Entre em contato com o suporte.`);
+      }
+
       const inputHash = await generateHash(trimmedPassword);
       const storedHash = user.senha_hash;
 
@@ -79,18 +88,19 @@ export default function App() {
         await supabase
           .from('tb_usuarios')
           .update({ senha_hash: inputHash })
-          .eq('id_usuario', user.id_usuario || user.id);
+          .eq('id', user.id);
       }
 
       const sessionData = {
-        id: user.id_usuario || user.id,
+        id: user.id,
         nome: user.nome_completo || user.nome || 'Usuário',
         email: user.email,
         role: user.role || 'admin',
+        perfil: user.perfil || user.role?.toUpperCase() || 'LOJISTA',
         foto_perfil_url: user.foto_perfil_url
       };
 
-      // Auditoria de Login (Não bloqueante)
+      // Auditoria de Login
       try {
         await supabase.from('tb_logs_audit').insert({
           id_usuario: sessionData.id,
@@ -99,7 +109,7 @@ export default function App() {
           descricao: `Usuário ${sessionData.nome} realizou login no painel.`
         });
       } catch (auditErr) {
-        console.warn("[Audit Log Skip] Falha ao registrar log de login, mas prosseguindo...", auditErr);
+        console.warn("[Audit Log Skip] Falha ao registrar log de login.", auditErr);
       }
 
       localStorage.setItem('user_session', JSON.stringify(sessionData));
@@ -218,7 +228,7 @@ export default function App() {
 
         <div className="hidden lg:flex lg:w-1/2 min-h-screen items-end justify-center relative pointer-events-none">
            <img 
-             src="https://i.ibb.co/q360mr8r/FOTO-2-com-xxxxcart-o.png" 
+             src="https://i.ibb.co/C3W3hz93/man.png" 
              alt="Parceiro Clube Partner" 
              className="w-auto h-auto max-h-[90vh] object-contain object-bottom drop-shadow-2xl"
            />
