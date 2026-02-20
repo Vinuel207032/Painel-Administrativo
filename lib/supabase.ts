@@ -1,18 +1,30 @@
+
 import { createClient } from '@supabase/supabase-js';
 
-// ------------------------------------------------------------------
-// CONFIGURAÇÃO DO SUPABASE
-// ------------------------------------------------------------------
+// NOVAS CREDENCIAIS DO PROJETO
+const SUPABASE_URL = 'https://ybmqahybzujfevllcsdq.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_Z2eXe4rE9DhDCPDmJVfU4w_T1rTuVrw';
 
-const SUPABASE_URL = 'https://kxufpnxhpdhndaizygqs.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt4dWZwbnhocGRobmRhaXp5Z3FzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUxMjQyNDAsImV4cCI6MjA4MDcwMDI0MH0.9zA1BzHslK_mu7rZj7hq1X_nRyf_BHcg3ATA_98fD9k';
-
-// Verifica se as chaves foram configuradas para evitar erros silenciosos
+// Verifica se as chaves foram configuradas
 export const isSupabaseConfigured = () => {
   return SUPABASE_URL.length > 0 && SUPABASE_KEY.length > 0;
 };
 
-// Cria o cliente apenas se houver configuração, senão cria um null para ser tratado na App
-export const supabase = isSupabaseConfigured()
-  ? createClient(SUPABASE_URL, SUPABASE_KEY)
-  : null;
+export const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// TIPAGEM ATUALIZADA (Baseada no CSV do Banco)
+export type UserRole = 'MASTER' | 'ADMIN' | 'LOJISTA' | 'CLIENTE';
+
+export interface UserProfile {
+  id: number;          // bigint
+  uuid: string;        // uuid
+  nome: string;        // varchar
+  cpf: string;         // varchar
+  email: string;       // varchar
+  senha_hash: string;  // varchar
+  tipo_usuario: UserRole; // enum/user-defined
+  status: string;      // enum/user-defined (ATIVO/INATIVO/SUSPENSO)
+  telefone?: string;
+  avatar_id?: number;
+  plano_atual?: string;
+}

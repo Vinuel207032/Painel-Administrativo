@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Sparkles } from 'lucide-react';
+import { useConfig } from '../contexts/ConfigContext';
 
 interface DashboardProps {
   dashData: any;
@@ -9,14 +10,20 @@ interface DashboardProps {
 }
 
 export const Dashboard: React.FC<DashboardProps> = ({ theme, user }) => {
+  const { config } = useConfig();
+  const primaryColor = config['sistema.cor_primaria'] || 'var(--primary-color, #1e293b)';
+
   return (
     <div className="animate-fade-in py-12 flex flex-col items-center justify-center text-center">
-      <div className="w-20 h-20 bg-yellow-500/10 rounded-full flex items-center justify-center mb-6 text-yellow-500 animate-pulse">
+      <div 
+        className="w-20 h-20 rounded-full flex items-center justify-center mb-6 animate-pulse"
+        style={{ backgroundColor: `${primaryColor}15`, color: primaryColor }}
+      >
         <Sparkles size={40} />
       </div>
       
       <h1 className={`text-3xl md:text-5xl font-black tracking-tight mb-4 ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>
-        Bem-vindo ao Painel, <span className="text-yellow-500">{user?.nome?.split(' ')[0]}</span>
+        Bem-vindo ao Painel, <span style={{ color: primaryColor }}>{user?.nome?.split(' ')[0]}</span>
       </h1>
       
       <p className={`text-lg max-w-lg leading-relaxed ${theme === 'dark' ? 'text-slate-400' : 'text-slate-500'}`}>

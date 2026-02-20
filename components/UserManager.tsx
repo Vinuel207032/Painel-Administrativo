@@ -19,14 +19,13 @@ export const UserManager: React.FC<UserManagerProps> = ({ theme, user, onAuditLo
   const [viewMode, setViewMode] = useState<'LIST' | 'EDIT_USER'>('LIST');
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
   
-  // Controle de Senha
   const [editNewPassword, setEditNewPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [cpfConfirmInput, setCpfConfirmInput] = useState('');
   const [isPasswordUnlocked, setIsPasswordUnlocked] = useState(false);
 
   const [userForm, setUserForm] = useState({
-    id: null, nome: '', cpf: '', email: '', perfil: 'LOJISTA', status_conta: 'ATIVO', foto_perfil_url: ''
+    id: null, nome: '', cpf: '', email: '', tipo_usuario: 'LOJISTA', status: 'ATIVO', foto_perfil_url: ''
   });
 
   useEffect(() => { fetchMainList(); }, []);
@@ -38,7 +37,8 @@ export const UserManager: React.FC<UserManagerProps> = ({ theme, user, onAuditLo
 
   const fetchMainList = async () => {
     setLoading(true);
-    const { data } = await supabase!.from('tb_usuarios').select('*').order('id', { ascending: false });
+    // Mudança para a nova tabela 'usuarios'
+    const { data } = await supabase!.from('usuarios').select('*').order('id', { ascending: false });
     setListData(data || []);
     setLoading(false);
   };
@@ -46,11 +46,11 @@ export const UserManager: React.FC<UserManagerProps> = ({ theme, user, onAuditLo
   const handleEditUser = (u: any) => {
     setUserForm({
       id: u.id,
-      nome: u.nome_completo || u.nome || "",
+      nome: u.nome || "",
       email: u.email || "",
       cpf: u.cpf || "", 
-      perfil: u.perfil || 'LOJISTA',
-      status_conta: u.status_conta || 'ATIVO',
+      tipo_usuario: u.tipo_usuario || 'LOJISTA',
+      status: u.status || 'ATIVO',
       foto_perfil_url: u.foto_perfil_url || ""
     });
     setEditNewPassword('');
@@ -66,25 +66,25 @@ export const UserManager: React.FC<UserManagerProps> = ({ theme, user, onAuditLo
       setIsPasswordUnlocked(true);
       showToast("Acesso liberado!", "success");
     } else {
-      showToast("CPF incorreto para este registro.", "error");
+      showToast("CPF incorreto.", "error");
     }
   };
 
   const handleSave = async () => {
     setLoading(true);
     const payload: any = {
-      nome_completo: userForm.nome,
+      nome: userForm.nome,
       email: userForm.email,
-      perfil: userForm.perfil,
-      status_conta: userForm.status_conta
+      tipo_usuario: userForm.tipo_usuario,
+      status: userForm.status
     };
     if (isPasswordUnlocked && editNewPassword.length >= 6) {
       payload.senha_hash = await generateHash(editNewPassword);
     }
-    const { error } = await supabase!.from('tb_usuarios').update(payload).eq('id', userForm.id);
+    const { error } = await supabase!.from('usuarios').update(payload).eq('id', userForm.id);
     if (!error) {
       showToast("Alterações salvas!", "success");
-      onAuditLog('UPDATE', 'tb_usuarios', `Editou operador ${userForm.nome}`);
+      onAuditLog('UPDATE', 'usuarios', `Editou operador ${userForm.nome}`);
       setViewMode('LIST');
       fetchMainList();
     }
@@ -112,7 +112,7 @@ export const UserManager: React.FC<UserManagerProps> = ({ theme, user, onAuditLo
 
       <div className="relative mb-8">
         <Search className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-300" size={20} />
-        <input type="text" placeholder="Filtrar por nome ou e-mail..." className="w-full pl-14 pr-6 py-5 rounded-3xl border-2 bg-white dark:bg-slate-900 dark:border-slate-800 dark:text-white outline-none focus:border-yellow-500 font-bold" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
+        <input type="text" placeholder="Filtrar..." className="w-full pl-14 pr-6 py-5 rounded-3xl border-2 bg-white dark:bg-slate-900 dark:border-slate-800 dark:text-white outline-none focus:border-yellow-500 font-bold" value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -123,12 +123,12 @@ export const UserManager: React.FC<UserManagerProps> = ({ theme, user, onAuditLo
                   <img src={u.foto_perfil_url || 'https://i.ibb.co/JF2Gz3v8/logo.png'} className="w-full h-full object-cover" />
                </div>
                <div className="flex-1 overflow-hidden">
-                  <p className={`font-black text-sm uppercase truncate ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{u.nome_completo || "Sem Nome"}</p>
+                  <p className={`font-black text-sm uppercase truncate ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>{u.nome || "Sem Nome"}</p>
                   <p className="text-[10px] text-slate-400 font-bold tracking-widest uppercase truncate">{u.email}</p>
                </div>
             </div>
             <div className="flex justify-between items-center pt-4 border-t dark:border-slate-800/50">
-               <span className="text-[9px] font-black uppercase px-3 py-1.5 rounded-xl bg-yellow-500/10 text-yellow-600">{u.perfil}</span>
+               <span className="text-[9px] font-black uppercase px-3 py-1.5 rounded-xl bg-yellow-500/10 text-yellow-600">{u.tipo_usuario}</span>
                <button onClick={() => handleEditUser(u)} className="p-3 bg-slate-100 dark:bg-slate-800 rounded-xl text-slate-400 hover:text-yellow-500 transition-colors">
                   <Edit3 size={18} />
                </button>
@@ -141,7 +141,7 @@ export const UserManager: React.FC<UserManagerProps> = ({ theme, user, onAuditLo
         <div className="fixed inset-0 z-[100] bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4">
            <div className={`w-full max-w-lg rounded-[3rem] shadow-2xl p-10 overflow-y-auto max-h-[90vh] ${theme === 'dark' ? 'bg-slate-900 text-white border border-slate-800' : 'bg-white'}`}>
               <div className="flex justify-between items-center mb-8">
-                <h3 className="text-xl font-black uppercase tracking-tighter">Ajustar Registro</h3>
+                <h3 className="text-xl font-black uppercase tracking-tighter">Editar Registro</h3>
                 <button onClick={() => setViewMode('LIST')} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800"><X /></button>
               </div>
 
@@ -149,23 +149,25 @@ export const UserManager: React.FC<UserManagerProps> = ({ theme, user, onAuditLo
                 <div className="grid grid-cols-2 gap-4">
                    <div className="space-y-1">
                       <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Status</label>
-                      <select className="w-full p-4 rounded-2xl border-2 bg-slate-50 dark:bg-slate-800 dark:border-slate-700 font-bold outline-none focus:border-yellow-500 appearance-none cursor-pointer" value={userForm.status_conta} onChange={e => setUserForm({...userForm, status_conta: e.target.value})}>
+                      <select className="w-full p-4 rounded-2xl border-2 bg-slate-50 dark:bg-slate-800 dark:border-slate-700 font-bold outline-none focus:border-yellow-500 appearance-none cursor-pointer" value={userForm.status} onChange={e => setUserForm({...userForm, status: e.target.value})}>
                          <option value="ATIVO">ATIVO</option>
                          <option value="SUSPENSO">SUSPENSO</option>
+                         <option value="INATIVO">INATIVO</option>
                       </select>
                    </div>
                    <div className="space-y-1">
                       <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Perfil</label>
-                      <select className="w-full p-4 rounded-2xl border-2 bg-slate-50 dark:bg-slate-800 dark:border-slate-700 font-bold outline-none focus:border-yellow-500 appearance-none cursor-pointer" value={userForm.perfil} onChange={e => setUserForm({...userForm, perfil: e.target.value})}>
+                      <select className="w-full p-4 rounded-2xl border-2 bg-slate-50 dark:bg-slate-800 dark:border-slate-700 font-bold outline-none focus:border-yellow-500 appearance-none cursor-pointer" value={userForm.tipo_usuario} onChange={e => setUserForm({...userForm, tipo_usuario: e.target.value})}>
                          <option value="MASTER">MASTER</option>
                          <option value="ADMIN">ADMIN</option>
                          <option value="LOJISTA">LOJISTA</option>
+                         <option value="CLIENTE">CLIENTE</option>
                       </select>
                    </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Nome Completo</label>
+                  <label className="text-[10px] font-black uppercase text-slate-400 ml-1">Nome</label>
                   <input className="w-full p-4 rounded-2xl border-2 bg-slate-50 dark:bg-slate-800 dark:border-slate-700 font-bold focus:border-yellow-500 outline-none" value={userForm.nome} onChange={e => setUserForm({...userForm, nome: e.target.value})} />
                 </div>
 
@@ -175,7 +177,7 @@ export const UserManager: React.FC<UserManagerProps> = ({ theme, user, onAuditLo
                    </h4>
                    {!isPasswordUnlocked ? (
                      <div className="space-y-3">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Confirme o CPF completo:</p>
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Confirme o CPF:</p>
                         <div className="flex gap-2">
                            <input type="text" placeholder="000.000.000-00" className="flex-1 p-3 rounded-xl border-2 bg-white dark:bg-slate-900 font-bold text-sm outline-none focus:border-yellow-500" value={cpfConfirmInput} onChange={e => setCpfConfirmInput(e.target.value)} />
                            <button onClick={validateCpf} className="bg-slate-900 text-white px-5 rounded-xl font-black text-[10px] uppercase shadow-md active:scale-95 transition-all">Liberar</button>
@@ -183,14 +185,14 @@ export const UserManager: React.FC<UserManagerProps> = ({ theme, user, onAuditLo
                      </div>
                    ) : (
                      <div className="relative animate-fade-in">
-                        <input type={passwordVisible ? 'text' : 'password'} className="w-full p-4 rounded-xl border-2 bg-white dark:bg-slate-900 font-bold text-sm outline-none border-green-500" placeholder="Nova Senha (Mín. 6 chars)" value={editNewPassword} onChange={e => setEditNewPassword(e.target.value)} />
+                        <input type={passwordVisible ? 'text' : 'password'} className="w-full p-4 rounded-xl border-2 bg-white dark:bg-slate-900 font-bold text-sm outline-none border-green-500" placeholder="Nova Senha" value={editNewPassword} onChange={e => setEditNewPassword(e.target.value)} />
                         <button onClick={() => setPasswordVisible(!passwordVisible)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400">{passwordVisible ? <EyeOff size={18} /> : <Eye size={18} />}</button>
                      </div>
                    )}
                 </div>
 
                 <button onClick={handleSave} disabled={loading} className="w-full py-5 bg-yellow-500 text-white rounded-3xl font-black uppercase tracking-widest shadow-xl hover:bg-yellow-600 transition-all active:scale-95">
-                   {loading ? 'Processando...' : 'Salvar Dados'}
+                   {loading ? 'Salvando...' : 'Salvar Dados'}
                 </button>
               </div>
            </div>

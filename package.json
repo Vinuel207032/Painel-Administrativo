@@ -6,14 +6,16 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "lint": "tsc --noEmit"
   },
   "dependencies": {
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "lucide-react": "^0.556.0",
     "@supabase/supabase-js": "2.39.7",
-    "resend": "^6.5.2"
+    "resend": "^6.5.2",
+    "@google/genai": "^1.41.0"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

@@ -33,7 +33,7 @@ export const Input: React.FC<InputProps> = ({ label, icon, className = '', type 
           type={inputType}
           className={`
             w-full bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 text-gray-900 dark:text-white text-sm rounded-lg 
-            focus:ring-yellow-500 focus:border-yellow-500 block 
+            focus:ring-slate-400 focus:border-slate-400 block 
             ${icon ? 'pl-10' : 'pl-3'} 
             ${isPasswordType ? 'pr-10' : 'p-2.5'}
             p-2.5 
