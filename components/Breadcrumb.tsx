@@ -15,7 +15,7 @@ export const Breadcrumb: React.FC<BreadcrumbProps> = ({ paths, theme }) => {
         <span className="text-[10px] font-black uppercase tracking-[0.2em]">Home</span>
       </div>
       
-      {paths.map((path, index) => (
+      {paths?.map((path, index) => (
         <React.Fragment key={index}>
           <ChevronRight size={12} className="text-slate-300" />
           <div 

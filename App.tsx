@@ -79,7 +79,15 @@ const FallingCoupons = () => {
 };
 
 export default function App() {
-  const { config } = useConfig();
+  const { config, loading } = useConfig();
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-white/50 backdrop-blur-md z-[200] flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-slate-300 border-t-slate-900 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
   const [currentUser, setCurrentUser] = useState<any>(() => {
     try {
       const savedSession = localStorage.getItem('user_session') || sessionStorage.getItem('user_session');

@@ -939,7 +939,7 @@ export const Registrations: React.FC<RegistrationsProps> = ({
           </div>
           <div>
             <h2 className={`text-3xl font-black uppercase tracking-tight ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Operadores</h2>
-            <p className="font-bold text-[10px] uppercase tracking-widest mt-1 opacity-60" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>Equipe Administrativa</p>
+            <p className="font-bold text-[10px] uppercase tracking-widest mt-1 opacity-60" style={{ color: theme === 'dark' ? '#fff' : '#1e293b' }}>Gerenciar os operadores que possuem acesso ao painel.</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
@@ -1114,7 +1114,7 @@ export const Registrations: React.FC<RegistrationsProps> = ({
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-            {paginatedData.length > 0 ? paginatedData.map((u, idx) => (
+            {paginatedData?.length > 0 ? paginatedData.map((u, idx) => (
               <tr key={idx} className="transition-colors group hover:bg-slate-50 dark:hover:bg-slate-800/50">
                 <td className="px-6 py-5">
                   <div className="w-12 h-12 rounded-2xl overflow-hidden bg-white border border-slate-100 shadow-inner flex items-center justify-center">
@@ -1122,7 +1122,7 @@ export const Registrations: React.FC<RegistrationsProps> = ({
                   </div>
                 </td>
                 <td className="px-6 py-5">
-                  <p className="font-black text-sm uppercase transition-colors" style={{ color: primaryColor }}>{u.nome || u.razao_social || u.titulo}</p>
+                  <p className={`font-black text-sm uppercase transition-colors ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>{u.nome || u.razao_social || u.titulo}</p>
                   <p className="text-[10px] text-slate-400 font-bold tracking-tight">{u.email || u.cpf}</p>
                 </td>
                 <td className="px-6 py-5 text-center">
