@@ -132,56 +132,82 @@ export const Sidebar: React.FC<SidebarProps> = ({
   };
 
   return (
-    <aside 
-      style={{ backgroundColor: sidebarBg }}
-      className={`fixed top-16 left-0 bottom-0 z-40 transition-all duration-300 ease-in-out flex flex-col border-r border-black/5 ${isCollapsed ? 'w-20' : 'w-64'}`}
-    >
-      <div className="flex-1 overflow-y-auto px-3 py-6 space-y-2 custom-scrollbar">
-        <button 
-          onClick={() => setActiveTab('DASHBOARD')} 
-          style={activeTab === 'DASHBOARD' ? { backgroundColor: primaryColor, color: getContrastColor(primaryColor) } : { color: textColor }}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap mb-6
-            ${activeTab === 'DASHBOARD' ? 'shadow-lg' : 'hover:bg-black/5'}
-            ${isCollapsed ? 'justify-center px-0' : ''}
-          `}
-        >
-          <div className={`${isCollapsed ? 'mx-auto' : ''} flex items-center gap-3`}>
-            <LayoutDashboard size={18} className="flex-shrink-0" /> 
-            {!isCollapsed && <span className="font-black text-[10px] uppercase tracking-widest">Visão Geral</span>}
-          </div>
+    <>
+      {/* Desktop Sidebar */}
+      <aside 
+        style={{ backgroundColor: sidebarBg }}
+        className={`hidden md:flex fixed top-16 left-0 bottom-0 z-40 transition-all duration-300 ease-in-out flex-col border-r border-black/5 ${isCollapsed ? 'w-20' : 'w-64'}`}
+      >
+        <div className="flex-1 overflow-y-auto px-3 py-6 space-y-2 custom-scrollbar">
+          <button 
+            onClick={() => setActiveTab('DASHBOARD')}
+            style={activeTab === 'DASHBOARD' ? { backgroundColor: primaryColor, color: getContrastColor(primaryColor) } : { color: textColor }}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all whitespace-nowrap mb-6
+              ${activeTab === 'DASHBOARD' ? 'shadow-lg' : 'hover:bg-black/5'}
+              ${isCollapsed ? 'justify-center px-0' : ''}
+            `}
+          >
+            <div className={`${isCollapsed ? 'mx-auto' : ''} flex items-center gap-3`}>
+              <LayoutDashboard size={18} className="flex-shrink-0" /> 
+              {!isCollapsed && <span className="font-black text-[10px] uppercase tracking-widest">Visão Geral</span>}
+            </div>
+          </button>
+
+          <MenuAccordion section="parceiros" label="Parceiros" isOpen={openSections.parceiros} onToggle={() => toggleSection('parceiros')} icon={Building2}>
+            <SubNavItem id="REG_COMPANIES" label="Empresas" icon={Building2} />
+            <SubNavItem id="REG_BENEFITS" label="Benefícios" icon={Tag} />
+          </MenuAccordion>
+
+          <MenuAccordion section="intelligence" label="Intelligence" isOpen={openSections.intelligence} onToggle={() => toggleSection('intelligence')} icon={BarChart3} roles={['MASTER', 'ADMIN']}>
+            <SubNavItem id="INT_REPORTS" label="Relatórios" icon={BarChart3} />
+          </MenuAccordion>
+
+          <MenuAccordion section="config" label="Configurações" isOpen={openSections.config} onToggle={() => toggleSection('config')} icon={Layers} roles={['MASTER']}>
+            <SubNavItem id="REG_CATEGORIES" label="Categorias" icon={Layers} />
+            <SubNavItem id="REG_BANNERS" label="Banners" icon={ImageIcon} />
+            <SubNavItem id="REG_AVATARS" label="Avatares" icon={UserCircle} />
+          </MenuAccordion>
+
+          <MenuAccordion section="sistema" label="Sistema" isOpen={openSections.sistema} onToggle={() => toggleSection('sistema')} icon={ShieldCheck} roles={['MASTER']}>
+            <SubNavItem id="REG_USERS" label="Operadores" icon={Users} />
+            <SubNavItem id="SYS_IDENTITY" label="Identidade" icon={Palette} />
+          </MenuAccordion>
+        </div>
+
+        <div className="p-4 border-t border-black/5 flex items-center">
+          <button 
+            onClick={() => setIsCollapsed(!isCollapsed)} 
+            style={{ color: mutedText }}
+            className={`flex items-center gap-3 hover:text-primary transition-all group ${isCollapsed ? 'mx-auto' : 'px-4'}`}
+          >
+            {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
+            {!isCollapsed && <span className="text-[10px] font-black uppercase tracking-widest">Ocultar Menu</span>}
+          </button>
+        </div>
+      </aside>
+
+      {/* Mobile Bottom Navigation */}
+      <nav 
+        style={{ backgroundColor: sidebarBg }}
+        className="md:hidden fixed bottom-0 left-0 right-0 z-50 flex justify-around items-center border-t border-black/5 shadow-lg"
+      >
+        <button onClick={() => setActiveTab('DASHBOARD')} className={`flex flex-col items-center p-2 ${activeTab === 'DASHBOARD' ? 'text-primary' : ''}`} style={{ color: activeTab === 'DASHBOARD' ? primaryColor : textColor}}>
+          <LayoutDashboard size={20} />
+          <span className="text-[9px]">Visão Geral</span>
         </button>
-
-        <MenuAccordion section="parceiros" label="Parceiros" isOpen={openSections.parceiros} onToggle={() => toggleSection('parceiros')} icon={Building2}>
-          <SubNavItem id="REG_COMPANIES" label="Empresas" icon={Building2} />
-          <SubNavItem id="REG_BENEFITS" label="Benefícios" icon={Tag} />
-        </MenuAccordion>
-
-        <MenuAccordion section="intelligence" label="Intelligence" isOpen={openSections.intelligence} onToggle={() => toggleSection('intelligence')} icon={BarChart3} roles={['MASTER', 'ADMIN']}>
-          <SubNavItem id="INT_REPORTS" label="Relatórios" icon={BarChart3} />
-        </MenuAccordion>
-
-        <MenuAccordion section="config" label="Configurações" isOpen={openSections.config} onToggle={() => toggleSection('config')} icon={Layers} roles={['MASTER']}>
-          <SubNavItem id="REG_CATEGORIES" label="Categorias" icon={Layers} />
-          <SubNavItem id="REG_BANNERS" label="Banners" icon={ImageIcon} />
-          <SubNavItem id="REG_AVATARS" label="Avatares" icon={UserCircle} />
-        </MenuAccordion>
-
-        <MenuAccordion section="sistema" label="Sistema" isOpen={openSections.sistema} onToggle={() => toggleSection('sistema')} icon={ShieldCheck} roles={['MASTER']}>
-          <SubNavItem id="REG_USERS" label="Operadores" icon={Users} />
-          <SubNavItem id="SYS_IDENTITY" label="Identidade" icon={Palette} />
-        </MenuAccordion>
-      </div>
-
-      <div className="p-4 border-t border-black/5 flex items-center">
-        <button 
-          onClick={() => setIsCollapsed(!isCollapsed)} 
-          style={{ color: mutedText }}
-          className={`flex items-center gap-3 hover:text-primary transition-all group ${isCollapsed ? 'mx-auto' : 'px-4'}`}
-        >
-          {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
-          {!isCollapsed && <span className="text-[10px] font-black uppercase tracking-widest">Ocultar Menu</span>}
+        <button onClick={() => toggleSection('parceiros')} className={`flex flex-col items-center p-2 ${openSections.parceiros ? 'text-primary' : ''}`} style={{ color: openSections.parceiros ? primaryColor : textColor}}>
+          <Building2 size={20} />
+          <span className="text-[9px]">Parceiros</span>
         </button>
-      </div>
-    </aside>
+        <button onClick={() => { setActiveTab('REG_CATEGORIES'); toggleSection('config'); }} className={`flex flex-col items-center p-2 ${openSections.config ? 'text-primary' : ''}`} style={{ color: openSections.config ? primaryColor : textColor}}>
+          <Layers size={20} />
+          <span className="text-[9px]">Config</span>
+        </button>
+        <button onClick={() => toggleSection('sistema')} className={`flex flex-col items-center p-2 ${openSections.sistema ? 'text-primary' : ''}`} style={{ color: openSections.sistema ? primaryColor : textColor}}>
+          <ShieldCheck size={20} />
+          <span className="text-[9px]">Sistema</span>
+        </button>
+      </nav>
+    </>
   );
 };

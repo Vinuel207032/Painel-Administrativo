@@ -200,7 +200,10 @@ export const Registrations: React.FC<RegistrationsProps> = ({
       table = 'empresas';
       query = supabase!.from(table).select('*');
     } else if (activeSubTab === 'REG_CATEGORIES') {
-      table = 'tb_categorias';
+      table = 'categorias';
+      query = supabase!.from(table).select('*');
+    } else if (activeSubTab === 'REG_BANNERS') {
+      table = 'banners';
       query = supabase!.from(table).select('*');
     }
 
@@ -238,7 +241,28 @@ export const Registrations: React.FC<RegistrationsProps> = ({
     return filtered.slice(start, start + rowsPerPage);
   }, [filtered, currentPage, rowsPerPage]);
 
-  const handleEditUser = (u: any) => {
+  const handleEditUser = async (u: any) => {
+    if (u.status !== 'ATIVO') {
+      if (window.confirm(`Este operador está ${u.status.toLowerCase()}. Deseja reativá-lo para 'ATIVO' antes de editar?`)) {
+        try {
+          setLoading(true);
+          const { error } = await supabase!.from('usuarios').update({ status: 'ATIVO' }).eq('id', u.id);
+          if (error) throw error;
+          showToast('Operador reativado com sucesso!', 'success');
+          onAuditLog('UPDATE', 'USUARIOS', `Reativou o operador ${u.nome}`, JSON.stringify(u), JSON.stringify({ ...u, status: 'ATIVO' }), u.id, 'USUARIO');
+          fetchData(); // Refresh the list to show the updated status
+          // Proceed to open the modal with the now active user data
+          u.status = 'ATIVO'; 
+        } catch (err: any) {
+          showToast(`Erro ao reativar: ${err.message}`, 'error');
+          setLoading(false);
+          return; // Stop if reactivation fails
+        } finally {
+          setLoading(false);
+        }
+      }
+    }
+
     setUserForm({
       id: u.id,
       nome: toTitleCase(u.nome || ""),
@@ -261,6 +285,7 @@ export const Registrations: React.FC<RegistrationsProps> = ({
   };
 
   const handleDeleteClick = (u: any) => {
+    console.log("--- DEBUG: Botão Excluir Clicado ---", u);
     const currentUserRole = (user?.perfil || user?.tipo_usuario || '').toUpperCase();
     setUserToDelete(u);
     if (currentUserRole === 'MASTER') {
@@ -282,18 +307,15 @@ export const Registrations: React.FC<RegistrationsProps> = ({
 
     setLoading(true);
     try {
-      // Capturar dados antigos antes da exclusão
       const { data: oldData } = await supabase!.from('usuarios').select('*').eq('id', u.id).single();
       const dadosAntigosStr = oldData ? JSON.stringify(oldData) : undefined;
       
       const updatePayload = { status: 'DELETADO' };
       const dadosNovosStr = oldData ? JSON.stringify({ ...oldData, ...updatePayload }) : undefined;
 
-      // 1. Executar a exclusão no Supabase (Soft Delete)
       const { error } = await supabase!.from('usuarios').update(updatePayload).eq('id', u.id);
       if (error) throw error;
 
-      // 2. Gravar na auditoria (Aguardar conclusão conforme solicitado)
       await onAuditLog(
         'DELETE', 
         'USUARIOS', 
@@ -306,13 +328,12 @@ export const Registrations: React.FC<RegistrationsProps> = ({
 
       showToast("Operador excluído com sucesso!", "success");
       
-      // 3. Limpar estados e fechar modais
       setIsDeleteModalOpen(false);
       setDeleteJustification('');
       setMasterAuthPassword('');
       setUserToDelete(null);
-      setViewMode('LIST'); // Fecha o modal de edição
-      fetchData(); // Atualiza a lista
+      setViewMode('LIST');
+      fetchData();
     } catch (err: any) {
       console.error("Erro na exclusão:", err);
       showToast("Erro ao excluir: " + (err.message || "Erro desconhecido"), "error");
@@ -411,6 +432,7 @@ export const Registrations: React.FC<RegistrationsProps> = ({
               text-transform: uppercase;
               transform: rotate(-45deg);
               white-space: nowrap;
+              user-select: none;
             }
           </style>
         </head>
@@ -794,6 +816,7 @@ export const Registrations: React.FC<RegistrationsProps> = ({
               text-transform: uppercase;
               transform: rotate(-45deg);
               white-space: nowrap;
+              user-select: none;
             }
           </style>
         </head>
@@ -929,8 +952,8 @@ export const Registrations: React.FC<RegistrationsProps> = ({
           >
             <Printer size={22} />
           </button>
-          <button onClick={handleOpenCreateWizard} style={{ backgroundColor: primaryColor, color: contrastText }} className="px-8 h-14 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center gap-3 hover:scale-105 active:scale-95 transition-all">
-            <Plus size={20} /> Novo Operador
+          <button onClick={handleOpenCreateWizard} style={{ backgroundColor: primaryColor, color: contrastText }} className="w-14 h-14 rounded-2xl font-black text-xs uppercase tracking-widest shadow-xl flex items-center justify-center gap-3 hover:scale-105 active:scale-95 transition-all">
+            <Plus size={20} />
           </button>
         </div>
       </div>

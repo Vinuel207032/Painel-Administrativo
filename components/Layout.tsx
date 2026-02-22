@@ -38,21 +38,23 @@ export const Layout: React.FC<LayoutProps> = ({
       <Header user={user} theme={theme} onLogout={onLogout} />
 
       <div className="flex flex-1 pt-16">
-        {/* Sidebar */}
-        <Sidebar 
-          activeTab={activeTab}
-          setActiveTab={setActiveTab}
-          user={user}
-          theme={theme}
-          isCollapsed={isCollapsed}
-          setIsCollapsed={setIsCollapsed}
-        />
+        {/* Sidebar para Desktop */}
+        <div className="hidden md:block">
+          <Sidebar 
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            user={user}
+            theme={theme}
+            isCollapsed={isCollapsed}
+            setIsCollapsed={setIsCollapsed}
+          />
+        </div>
 
         <div 
-          className={`flex flex-col flex-1 transition-all duration-300 ${isCollapsed ? 'ml-20' : 'ml-64'}`}
+          className={`flex flex-col flex-1 transition-all duration-300 ${isCollapsed ? 'md:ml-20' : 'md:ml-64'}`}
           style={{ backgroundColor: pageBg }}
         >
-          {/* Área de Conteúdo - Removido bg-gray-50/30 para evitar a borda branca */}
+          {/* Área de Conteúdo */}
           <main className="p-6 md:p-10 flex-1">
             <div className="max-w-7xl mx-auto">
               {children}
@@ -63,6 +65,18 @@ export const Layout: React.FC<LayoutProps> = ({
              &copy; {new Date().getFullYear()} Clube da Gente Brasil
           </footer>
         </div>
+      </div>
+
+      {/* Bottom Navigation para Mobile */}
+      <div className="md:hidden">
+        <Sidebar 
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          user={user}
+          theme={theme}
+          isCollapsed={false} // Sempre expandido no mobile
+          setIsCollapsed={() => {}} // Não permite colapsar
+        />
       </div>
     </div>
   );

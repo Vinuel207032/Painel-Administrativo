@@ -5,6 +5,9 @@ import { Layout } from './Layout';
 import { Dashboard } from './Dashboard';
 import { Registrations } from './Registrations';
 import { Identidade } from './Identidade';
+import { Categories } from './Categories';
+import { Banners } from './Banners';
+import { Avatars } from './Avatars';
 
 interface HomeProps {
   onLogout: () => void;
@@ -88,6 +91,18 @@ export const Home: React.FC<HomeProps> = ({ onLogout, user }) => {
     if (activeTab === 'SYS_IDENTITY') {
       return <Identidade theme={theme} />;
     }
+
+      if (activeTab === 'REG_CATEGORIES') {
+        return <Categories theme={theme} user={user} onAuditLog={registerAuditLog} />;
+      }
+
+      if (activeTab === 'REG_BANNERS') {
+        return <Banners theme={theme} user={user} onAuditLog={registerAuditLog} />;
+      }
+
+      if (activeTab === 'REG_AVATARS') {
+        return <Avatars theme={theme} user={user} onAuditLog={registerAuditLog} />;
+      }
 
     return (
       <Registrations 
