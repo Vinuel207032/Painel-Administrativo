@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
 
-import { Sparkles, Filter, Search, Plus, Layers, AlertCircle, Bell, Edit3, Trash2, Save, X, ChevronLeft, ChevronRight, Printer, ChevronDown } from 'lucide-react';
+import { Sparkles, Filter, Search, Plus, Layers, AlertCircle, Bell, Edit3, Trash2, Save, X, ChevronLeft, ChevronRight, Printer, ChevronDown, Eye, Check } from 'lucide-react';
 import { GoogleGenAI } from "@google/genai";
 import { supabase } from '../lib/supabase';
 import { Breadcrumb } from './Breadcrumb';
@@ -52,6 +52,7 @@ export const Categories: React.FC<CategoriesProps> = ({
   const [iconQuery, setIconQuery] = useState('');
   const [iconResults, setIconResults] = useState<any[]>([]);
   const [isSearchingIcons, setIsSearchingIcons] = useState(false);
+  const [iconSearchResponse, setIconSearchResponse] = useState<any>(null);
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   
   const [currentPage, setCurrentPage] = useState(1);
@@ -291,9 +292,13 @@ export const Categories: React.FC<CategoriesProps> = ({
     if (!iconQuery.trim()) return;
     setIsSearchingIcons(true);
     setIconResults([]);
+    setIconSearchResponse(null);
     try {
-      const response = await fetch(`https://api.iconify.design/search?query=${iconQuery}&limit=30`);
+      const url = `https://api.iconify.design/search?query=${iconQuery}&limit=30`;
+      alert(`Buscando em: ${url}`);
+      const response = await fetch(url);
       const data = await response.json();
+      setIconSearchResponse(data); // Salva a resposta JSON crua
       setIconResults(data.icons || []);
     } catch (error) {
       console.error('Error searching icons:', error);
@@ -305,8 +310,11 @@ export const Categories: React.FC<CategoriesProps> = ({
 
   const handleIconSelect = async (icon: { prefix: string, name: string }) => {
     try {
-      const response = await fetch(`https://api.iconify.design/${icon.prefix}/${icon.name}.svg`);
+      const url = `https://api.iconify.design/${icon.prefix}/${icon.name}.svg`;
+      alert(`Buscando SVG em: ${url}`);
+      const response = await fetch(url);
       const svgText = await response.text();
+      alert(`SVG Recebido:\n\n${svgText}`);
       setCategoryForm({ ...categoryForm, icone_url: svgText });
       setIconQuery('');
       setIconResults([]);
@@ -469,9 +477,14 @@ export const Categories: React.FC<CategoriesProps> = ({
                   <p className="text-xs font-bold text-slate-400">Preencha os dados abaixo para continuar</p>
                 </div>
               </div>
-              <button onClick={() => setViewMode('LIST')} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
-                <X size={20} />
-              </button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => setIsPreviewModalOpen(true)} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <Eye size={20} />
+                </button>
+                <button onClick={() => setViewMode('LIST')} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800">
+                  <X size={20} />
+                </button>
+              </div>
             </div>
             <div className="p-8 flex-1 overflow-y-auto space-y-6">
               {isAiGenerated && (
@@ -520,6 +533,27 @@ export const Categories: React.FC<CategoriesProps> = ({
               </div>
 
               <div>
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Opções</label>
+                 <div className="mt-2 flex items-center gap-4 rounded-xl border-2 bg-slate-50 dark:bg-slate-800 dark:border-slate-700 p-3">
+                    <input 
+                      type="checkbox" 
+                      id="gastronomy-toggle" 
+                      className="sr-only" 
+                      checked={categoryForm.is_gastronomy}
+                      onChange={(e) => setCategoryForm({ ...categoryForm, is_gastronomy: e.target.checked })}
+                    />
+                    <label 
+                      htmlFor="gastronomy-toggle"
+                      className={`w-5 h-5 rounded-md flex items-center justify-center cursor-pointer border-2 ${categoryForm.is_gastronomy ? 'border-transparent' : 'border-slate-300 dark:border-slate-600'}`}
+                      style={{ backgroundColor: categoryForm.is_gastronomy ? primaryColor : 'transparent' }}
+                    >
+                      {categoryForm.is_gastronomy && <Check size={12} color={contrastText} />}
+                    </label>
+                    <label htmlFor="gastronomy-toggle" className="font-bold text-sm select-none cursor-pointer">É Gastronomia?</label>
+                </div>
+              </div>
+
+              <div>
                 <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Ícone (SVG)</label>
                 <div className="grid grid-cols-2 gap-4 mt-2">
                   <textarea
@@ -542,7 +576,7 @@ export const Categories: React.FC<CategoriesProps> = ({
                       </button>
                     </div>
                     <p className='text-[10px] text-slate-400 font-bold mt-2 px-1'>Dica: Pesquise em inglês (ex: car, home).</p>
-                    <div className="flex-1 mt-2 overflow-y-auto bg-slate-50 dark:bg-slate-800/50 rounded-lg p-2 border-2 dark:border-slate-700/50">
+                    <div className="flex-1 mt-2 overflow-y-auto bg-slate-50 dark:bg-slate-800/50 rounded-lg p-2 border-2 dark:border-slate-700/50 space-y-2">
                       {isSearchingIcons ? (
                         <div className="flex items-center justify-center h-full">
                           <p className="text-xs font-bold text-slate-400">Buscando...</p>
@@ -560,35 +594,46 @@ export const Categories: React.FC<CategoriesProps> = ({
                           <p className="text-xs font-bold text-slate-400">Nenhum resultado.</p>
                         </div>
                       )}
+                      {iconSearchResponse && (
+                        <div>
+                          <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Resposta da API (JSON):</label>
+                          <pre className="mt-1 p-2 bg-slate-100 dark:bg-slate-900 rounded-md text-xs overflow-auto max-h-40">
+                            {JSON.stringify(iconSearchResponse, null, 2)}
+                          </pre>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             <div className="p-6 border-t border-slate-100 dark:border-slate-800 flex justify-between items-center bg-slate-50 dark:bg-slate-900/50 rounded-b-3xl">
-              <div className="flex items-center gap-3">
-                <label htmlFor="status-toggle" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Status</label>
-                <div className="relative">
-                  <input 
-                    type="checkbox" 
-                    id="status-toggle" 
-                    className="sr-only" 
-                    checked={categoryForm.status === 'ATIVO'}
-                    onChange={() => handleStatusChange(categoryForm.status === 'ATIVO' ? 'INATIVO' : 'ATIVO')}
-                  />
-                  <label 
-                    htmlFor="status-toggle"
-                    className={`block w-12 h-6 rounded-full cursor-pointer transition-colors`}
-                    style={{ backgroundColor: categoryForm.status === 'ATIVO' ? primaryColor : (theme === 'dark' ? '#334155' : '#e2e8f0') }}
-                  >
-                    <span 
-                      className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 ease-in-out ${categoryForm.status === 'ATIVO' ? 'translate-x-6' : 'translate-x-0'}`}>
-                    </span>
-                  </label>
-                </div>
+              <div>
+                {viewMode === 'EDIT' && (
+                  <div className="flex items-center gap-3">
+                    <label htmlFor="status-toggle" className="text-[10px] font-black uppercase tracking-widest text-slate-500 dark:text-slate-400">Status</label>
+                    <div className="relative">
+                      <input 
+                        type="checkbox" 
+                        id="status-toggle" 
+                        className="sr-only" 
+                        checked={categoryForm.status === 'ATIVO'}
+                        onChange={() => handleStatusChange(categoryForm.status === 'ATIVO' ? 'INATIVO' : 'ATIVO')}
+                      />
+                      <label 
+                        htmlFor="status-toggle"
+                        className={`block w-12 h-6 rounded-full cursor-pointer transition-colors`}
+                        style={{ backgroundColor: categoryForm.status === 'ATIVO' ? primaryColor : (theme === 'dark' ? '#334155' : '#e2e8f0') }}
+                      >
+                        <span 
+                          className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 ease-in-out ${categoryForm.status === 'ATIVO' ? 'translate-x-6' : 'translate-x-0'}`}>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="flex items-center gap-3">
-                <button onClick={() => setIsPreviewModalOpen(true)} className="px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">Pré-visualizar</button>
                 <button onClick={() => setViewMode('LIST')} className="px-6 py-3 rounded-xl font-black text-xs uppercase tracking-widest text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all">Cancelar</button>
                 <button onClick={handleSave} style={{ backgroundColor: primaryColor, color: contrastText }} className="px-8 py-4 rounded-xl font-black text-xs uppercase tracking-widest shadow-lg hover:scale-105 transition-all flex items-center gap-2">
                   <Save size={16}/> Salvar
