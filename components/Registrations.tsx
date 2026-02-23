@@ -1116,22 +1116,22 @@ export const Registrations: React.FC<RegistrationsProps> = ({
           <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
             {paginatedData?.length > 0 ? paginatedData.map((u, idx) => (
               <tr key={idx} className="transition-colors group hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                <td className="px-6 py-5">
+                <td className="px-6 py-4 align-middle">
                   <div className="w-12 h-12 rounded-2xl overflow-hidden bg-white border border-slate-100 shadow-inner flex items-center justify-center">
                     <img src={u.avatars?.url_imagem || u.foto_url || u.url_imagem || 'https://i.ibb.co/JF2Gz3v8/logo.png'} className="w-full h-full object-cover p-0.5" onError={(e) => e.currentTarget.src = 'https://i.ibb.co/JF2Gz3v8/logo.png'} />
                   </div>
                 </td>
-                <td className="px-6 py-5">
+                <td className="px-6 py-4 align-middle">
                   <p className={`font-black text-sm uppercase transition-colors ${theme === 'dark' ? 'text-white' : 'text-slate-800'}`}>{u.nome || u.razao_social || u.titulo}</p>
                   <p className="text-[10px] text-slate-400 font-bold tracking-tight">{u.email || u.cpf}</p>
                 </td>
-                <td className="px-6 py-5 text-center">
+                <td className="px-6 py-4 text-center align-middle">
                    <span className="inline-block text-[9px] font-black uppercase px-4 py-2 rounded-xl" style={getUserBadgeStyle(u.tipo_usuario)}>{u.tipo_usuario || '-'}</span>
                 </td>
-                <td className="px-6 py-5 text-center">
+                <td className="px-6 py-4 text-center align-middle">
                    <span className={`text-[10px] font-black uppercase px-3 py-1 rounded-lg border ${u.status === 'ATIVO' ? 'border-green-100 text-green-600 bg-green-50' : 'border-red-100 text-red-600 bg-red-50'}`}>{u.status}</span>
                 </td>
-                <td className="px-6 py-5 text-right">
+                <td className="px-6 py-4 text-right align-middle">
                   <button onClick={() => handleEditUser(u)} className="p-3 rounded-xl transition-all text-slate-400 hover:text-yellow-500"><Edit3 size={20} /></button>
                 </td>
               </tr>
@@ -1142,7 +1142,7 @@ export const Registrations: React.FC<RegistrationsProps> = ({
           <tfoot className="bg-slate-50/50 dark:bg-slate-800/30">
             <tr>
               <td colSpan={5} className="px-6 py-6 border-t border-slate-100 dark:border-slate-800">
-                <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-6">
                     <p className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400">
                       Exibindo <span className="text-slate-600 dark:text-white">{(currentPage-1)*rowsPerPage+1}-{Math.min(currentPage*rowsPerPage, filtered.length)}</span> de <span className="text-slate-600 dark:text-white">{filtered.length}</span>

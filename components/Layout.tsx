@@ -11,6 +11,7 @@ interface LayoutProps {
   isSidePanelOpen: boolean; 
   setIsSidePanelOpen: (isOpen: boolean) => void;
   theme: 'light' | 'dark';
+  toggleTheme: () => void;
   user: any;
   onLogout: () => void;
   onAuditLog?: (acao: string, tabela: string, descricao: string) => void | Promise<void>;
@@ -21,13 +22,16 @@ export const Layout: React.FC<LayoutProps> = ({
   activeTab, 
   setActiveTab, 
   theme, 
+  toggleTheme,
   user,
   onLogout
 }) => {
   const { config } = useConfig();
   const [isCollapsed, setIsCollapsed] = useState(false);
   
-  const pageBg = config['sistema.cor_fundo_paginas'] || '#f8fafc';
+  const pageBg = theme === 'dark' 
+    ? (config['sistema.cor_fundo_paginas_dark'] || '#0c1322') 
+    : (config['sistema.cor_fundo_paginas'] || '#f8fafc');
 
   return (
     <div 
@@ -35,7 +39,7 @@ export const Layout: React.FC<LayoutProps> = ({
       style={{ backgroundColor: pageBg }}
     >
       {/* Header Fixo */}
-      <Header user={user} theme={theme} onLogout={onLogout} />
+      <Header user={user} theme={theme} onLogout={onLogout} toggleTheme={toggleTheme} />
 
       <div className="flex flex-1 pt-16">
         {/* Sidebar para Desktop */}

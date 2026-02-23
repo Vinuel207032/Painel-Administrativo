@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Mail, Lock, ArrowRight, AlertTriangle } from 'lucide-react';
 import { Input } from './components/Input';
 import { Button } from './components/Button';
@@ -81,13 +81,23 @@ const FallingCoupons = () => {
 export default function App() {
   const { config, loading } = useConfig();
 
-  if (loading) {
-    return (
-      <div className="fixed inset-0 bg-white/50 backdrop-blur-md z-[200] flex items-center justify-center">
-        <div className="w-16 h-16 border-4 border-slate-300 border-t-slate-900 rounded-full animate-spin"></div>
-      </div>
-    );
-  }
+  const [theme, setTheme] = useState<'light' | 'dark'>(() => {
+    const savedTheme = localStorage.getItem('app_theme');
+    if (savedTheme) {
+      return savedTheme as 'light' | 'dark';
+    }
+    return 'light';
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', theme === 'dark');
+    localStorage.setItem('app_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
+  };
+
   const [currentUser, setCurrentUser] = useState<any>(() => {
     try {
       const savedSession = localStorage.getItem('user_session') || sessionStorage.getItem('user_session');
@@ -109,6 +119,14 @@ export default function App() {
   const [rememberMe, setRememberMe] = useState(true);
   const [status, setStatus] = useState<LoginStatus>(LoginStatus.IDLE);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-white/50 backdrop-blur-md z-[200] flex items-center justify-center">
+        <div className="w-16 h-16 border-4 border-slate-300 border-t-slate-900 rounded-full animate-spin"></div>
+      </div>
+    );
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -156,7 +174,7 @@ export default function App() {
     setView('LOGIN');
   };
 
-  if (view === 'HOME') return <Home onLogout={handleLogout} user={currentUser} />;
+  if (view === 'HOME') return <Home onLogout={handleLogout} user={currentUser} theme={theme} toggleTheme={toggleTheme} />;
 
   const primaryColor = config['sistema.cor_primaria'] || 'var(--primary-color, #1e293b)';
   const loginBgPattern = config['login.imagem_fundo'] || "https://i.ibb.co/mFPg5vf2/Sem-nome-512-x-512-px-3.png";

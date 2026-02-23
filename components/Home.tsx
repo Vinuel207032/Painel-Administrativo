@@ -12,12 +12,13 @@ import { Avatars } from './Avatars';
 interface HomeProps {
   onLogout: () => void;
   user?: any;
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
 }
 
-export const Home: React.FC<HomeProps> = ({ onLogout, user }) => {
+export const Home: React.FC<HomeProps> = ({ onLogout, user, theme, toggleTheme }) => {
   const [activeTab, setActiveTab] = useState('DASHBOARD');
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(true);
-  const [theme, setTheme] = useState<'light' | 'dark'>(user?.preferencia_tema || 'light');
 
   const userRole = (user?.perfil || user?.tipo_usuario || '').toUpperCase();
   const isMaster = userRole === 'MASTER';
@@ -69,10 +70,7 @@ export const Home: React.FC<HomeProps> = ({ onLogout, user }) => {
     } catch (e) {}
   };
 
-  useEffect(() => {
-    const savedTheme = localStorage.getItem('app_theme') || user?.preferencia_tema;
-    if (savedTheme) setTheme(savedTheme as any);
-  }, []);
+  
 
   const handleTabChange = (tab: string) => {
     if (tab === 'SYS_IDENTITY' && !isMaster) {
@@ -121,6 +119,7 @@ export const Home: React.FC<HomeProps> = ({ onLogout, user }) => {
       isSidePanelOpen={isSidePanelOpen} 
       setIsSidePanelOpen={setIsSidePanelOpen}
       theme={theme}
+      toggleTheme={toggleTheme}
       user={user}
       onLogout={onLogout}
       onAuditLog={registerAuditLog}

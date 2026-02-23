@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ChevronDown, LogOut } from 'lucide-react';
+import { ChevronDown, LogOut, Sun, Moon } from 'lucide-react';
 import { useConfig } from '../contexts/ConfigContext';
 
 // Função para cálculo de contraste automático (YIQ)
@@ -17,9 +17,10 @@ interface HeaderProps {
   user: any;
   theme: 'light' | 'dark';
   onLogout: () => void;
+  toggleTheme: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
+export const Header: React.FC<HeaderProps> = ({ user, theme, onLogout, toggleTheme }) => {
   const { config } = useConfig();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   
@@ -42,6 +43,7 @@ export const Header: React.FC<HeaderProps> = ({ user, onLogout }) => {
       </div>
 
       <div className="flex items-center gap-4 relative">
+        
         <div 
           onClick={() => setIsDropdownOpen(!isDropdownOpen)}
           className="bg-black/10 backdrop-blur-md rounded-2xl py-2 px-4 flex items-center gap-3 border border-white/10 shadow-sm cursor-pointer hover:bg-black/20 transition-all select-none"

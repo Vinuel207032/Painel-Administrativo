@@ -10,12 +10,12 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@google/genai": "^1.42.0",
+    "@supabase/supabase-js": "2.39.7",
+    "lucide-react": "^0.556.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "lucide-react": "^0.556.0",
-    "@supabase/supabase-js": "2.39.7",
-    "resend": "^6.5.2",
-    "@google/genai": "^1.41.0"
+    "resend": "^6.5.2"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
